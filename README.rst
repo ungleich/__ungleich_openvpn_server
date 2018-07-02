@@ -16,31 +16,20 @@ subdirectories (see below).
 
 REQUIRED PARAMETERS
 -------------------
-None.
+config
+   Name of the configuration file below files/openvpn/
+
 
 OPTIONAL PARAMETERS
 -------------------
-state
-   'present', 'absent', 'exists' or 'pre-exists', defaults to 'present' where:
+srcdir
+   Directory that contains additional files for the server
+   configuration. The directory is relative to files/openvpn/.
+   If not specified, defaults to "server-generic". This directory
+   contains usually the following files: ca.crt, server.crt and
+   server.key. Additionally a sub directory "ccd" can be present that
+   contains client specific configuration files.
 
-   present
-      the file is exactly the one from source
-   absent
-      the file does not exist
-   exists
-      the file from source but only if it doesn't already exist
-   pre-exists
-      check that the file exists and is a regular file, but do not
-      create or modify it
-
-group
-   Group to chgrp to.
-
-mode
-   Unix permissions, suitable for chmod.
-
-owner
-   User to chown to.
 
 source
    If supplied, copy this file from the host running cdist to the target.
