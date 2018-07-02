@@ -1,0 +1,52 @@
+config=$(cat "$__object/parameter/config")
+
+srcdirparamfile="$__object/parameter/srcdir"
+if [ -f "$srcdirparamfile" ]; then
+    srcdirparam=$(cat "$srcdirparamfile")
+else
+    srcdirparam="server-generic"
+fi
+srcdir="$__files/openvpn/$srcdirparam"
+
+if [ ! -d "$srcdir" ]; then
+   echo "No such srcdir, ${srcdirparam}. Aborting."
+   exit 1
+fi
+
+confdir="$__files/openvpn/server-config"
+basedir=/etc/openvpn
+
+configfile="$confdir/${config}.conf"
+
+if [ ! -f "$configfile" ]; then
+   echo "No such config, ${config}. Aborting."
+   exit 1
+fi
+
+require="__package/openvpn" __file "$basedir/server.conf" \
+        --state present --mode 0600 \
+        --source "$configfile"
+
+__package openvpn --state present
+require="__package/openvpn" __start_on_boot openvpn --state present
+
+cd "$srcdir"
+
+for entry in *; do
+    if [ -d "$entry" ]; then
+        require="__package/openvpn" __directory "$basedir/$entry" \
+            --state present --mode 0755
+        cd "$entry"
+        for file in *; do
+            require="__package/openvpn __directory/$basedir/$entry" \
+                __file "$basedir/$entry/$file" \
+                --state present --mode 0644 \
+                --source "$srcdir/$entry/$file"
+        done
+        cd ".."
+    else
+        require="__package/openvpn" __file "$basedir/$entry" \
+            --state present --mode 0644 \
+            --source "$srcdir/$entry"
+    fi
+done

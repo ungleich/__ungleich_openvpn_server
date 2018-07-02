@@ -1,0 +1,7 @@
+if grep -q "^__file/etc/openvpn" "$__messages_in"; then
+    cat << eof
+    if [ "\$(pgrep openvpn)" ]; then
+        echo /etc/init.d/openvpn restart
+    fi
+eof
+fi
